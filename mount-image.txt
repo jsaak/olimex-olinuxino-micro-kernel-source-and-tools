@@ -1,0 +1,3 @@
+https://raspberrypi.stackexchange.com/questions/13137/how-can-i-mount-a-raspberry-pi-linux-distro-image
+
+mount -v -o offset=17825792 -t ext3 olimex_backup_20171010 /mnt/image 
