@@ -244,6 +244,50 @@ void rtc_device_unregister(struct rtc_device *rtc)
 }
 EXPORT_SYMBOL_GPL(rtc_device_unregister);
 
+static void devm_rtc_device_release(struct device *dev, void *res)
+{
+  struct rtc_device *rtc = *(struct rtc_device **)res;
+
+  rtc_device_unregister(rtc);
+}
+
+/**
+ * devm_rtc_device_register - resource managed rtc_device_register()
+ * @dev: the device to register
+ * @name: the name of the device
+ * @ops: the rtc operations structure
+ * @owner: the module owner
+ *
+ * @return a struct rtc on success, or an ERR_PTR on error
+ *
+ * Managed rtc_device_register(). The rtc_device returned from this function
+ * are automatically freed on driver detach. See rtc_device_register()
+ * for more information.
+ */
+
+struct rtc_device *devm_rtc_device_register(struct device *dev,
+          const char *name,
+          const struct rtc_class_ops *ops,
+          struct module *owner)
+{
+  struct rtc_device **ptr, *rtc;
+
+  ptr = devres_alloc(devm_rtc_device_release, sizeof(*ptr), GFP_KERNEL);
+  if (!ptr)
+    return ERR_PTR(-ENOMEM);
+
+  rtc = rtc_device_register(name, dev, ops, owner);
+  if (!IS_ERR(rtc)) {
+    *ptr = rtc;
+    devres_add(dev, ptr);
+  } else {
+    devres_free(ptr);
+  }
+
+  return rtc;
+}
+EXPORT_SYMBOL_GPL(devm_rtc_device_register);
+
 static int __init rtc_init(void)
 {
 	rtc_class = class_create(THIS_MODULE, "rtc");
