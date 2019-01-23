@@ -46,3 +46,8 @@ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j4 uImage
 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j4 INSTALL_MOD_PATH=out modules
 ```
 
+to make debian pckages (for getting headers for example)
+
+```
+KBUILD_DEBARCH=armhf make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- deb-pkg
+```
